@@ -6,6 +6,8 @@
 
 Flutter application for the **CS710S / CS108** BLE RFID readers. The Dart UI talks to the reader over Bluetooth Low Energy via platform-channel bridges into the native CSL SDKs — `csl-rfid-android-sdk` on Android (pulled from JitPack) and the [`CSL-CS710S`](https://github.com/cslrfid/CSL-CS710S) Swift package on iOS (added as a Swift Package Manager dependency in the Xcode project).
 
+![CS710S Flutter App architecture](images/cs710s-flutter.png)
+
 ## Architecture
 
 ### Layered Design
