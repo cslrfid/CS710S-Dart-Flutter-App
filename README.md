@@ -45,7 +45,7 @@ The app uses a strict five-layer architecture. Each layer only depends on the on
 ### Project Structure
 
 ```
-cs710flutterapp/
+.
 ├── lib/
 │   ├── main.dart                    # App entry point
 │   ├── app.dart                     # MaterialApp configuration
@@ -109,7 +109,7 @@ cs710flutterapp/
 | Platform | SDK | How it's pulled in |
 |---|---|---|
 | Android | `com.csl.rfidsdk` (from [`cslrfid/cs710s-android`](https://jitpack.io/#cslrfid/cs710s-android)) | Gradle dependency: `implementation 'com.github.cslrfid.cs710s-android:csl-rfid-android-sdk:v1.0.0'`. Transitively brings in `cslibrary4a` (vendor SDK) and `epctagcoder` (EPC Gen2 helper). |
-| iOS | Pre-built CSL framework | Vendored under `cs710flutterapp/ios/Runner/`, accessed via Swift code in the same folder. |
+| iOS | Pre-built CSL framework | Vendored under `ios/Runner/`, accessed via Swift code in the same folder. |
 
 The `com.csl.rfidsdk` package layout that the Android bridge code targets:
 
@@ -198,22 +198,17 @@ A separate `com.csl.rfid/permissions` method channel handles runtime permission 
 
 ### Installation
 
-1. **Navigate to the project**:
-   ```bash
-   cd cs710flutterapp
-   ```
-
-2. **Install dependencies**:
+1. **Install dependencies**:
    ```bash
    flutter pub get
    ```
 
-3. **Generate Riverpod code**:
+2. **Generate Riverpod code**:
    ```bash
    dart run build_runner build --delete-conflicting-outputs
    ```
 
-4. **Run the app**:
+3. **Run the app**:
    ```bash
    flutter run
    ```
