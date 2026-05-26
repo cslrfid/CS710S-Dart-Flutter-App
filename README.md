@@ -1,10 +1,10 @@
-# CS710 Flutter App
+# CS710S Flutter App
 
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-blue)
 ![Language](https://img.shields.io/badge/language-Dart-0175C2?logo=dart)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Flutter application for **CS710S / CS108** RFID readers from [Convergence Systems Limited](https://www.convergence.com.hk/cs710s/). The Dart UI talks to the reader over Bluetooth Low Energy via platform-channel bridges into the native CSL SDK — `csl-rfid-android-sdk` on Android (pulled from JitPack) and a Swift implementation built against the pre-built CSL framework on iOS.
+Flutter application for the **CS710S / CS108** BLE RFID readers. The Dart UI talks to the reader over Bluetooth Low Energy via platform-channel bridges into the native CSL SDKs — `csl-rfid-android-sdk` on Android (pulled from JitPack) and the [`CSL-CS710S`](https://github.com/cslrfid/CSL-CS710S) Swift package on iOS (added as a Swift Package Manager dependency in the Xcode project).
 
 ## Architecture
 
@@ -108,8 +108,8 @@ The app uses a strict five-layer architecture. Each layer only depends on the on
 
 | Platform | SDK | How it's pulled in |
 |---|---|---|
-| Android | `com.csl.rfidsdk` (from [`cslrfid/cs710s-android`](https://jitpack.io/#cslrfid/cs710s-android)) | Gradle dependency: `implementation 'com.github.cslrfid.cs710s-android:csl-rfid-android-sdk:v1.0.0'`. Transitively brings in `cslibrary4a` (vendor SDK) and `epctagcoder` (EPC Gen2 helper). |
-| iOS | Pre-built CSL framework | Vendored under `ios/Runner/`, accessed via Swift code in the same folder. |
+| Android | `com.csl.rfidsdk` (from [`cslrfid/cs710s-android`](https://jitpack.io/#cslrfid/cs710s-android)) | Gradle dependency: `implementation 'com.github.cslrfid.cs710s-android:csl-rfid-android-sdk:v1.0.0'`. Transitively brings in `cslibrary4a` (BLE/protocol layer) and `epctagcoder` (EPC Gen2 helper). |
+| iOS | [`CSL-CS710S`](https://github.com/cslrfid/CSL-CS710S) Swift package | Added as a Swift Package Manager dependency in the Xcode project; the Swift bridge under `ios/Runner/` consumes the package's API. |
 
 The `com.csl.rfidsdk` package layout that the Android bridge code targets:
 
