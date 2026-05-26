@@ -23,15 +23,3 @@ plugins {
 }
 
 include ":app"
-
-// Include the csl-rfid-android-sdk module from parent project
-include ":csl-rfid-android-sdk"
-project(":csl-rfid-android-sdk").projectDir = new File(settingsDir, "../../csl-rfid-android-sdk")
-
-// Include the cslibrary4a module (core SDK) - transitive dependency
-include ":cslibrary4a"
-project(":cslibrary4a").projectDir = new File(settingsDir, "../../cslibrary4a")
-
-// Include the epctagcoder module - transitive dependency
-include ":epctagcoder"
-project(":epctagcoder").projectDir = new File(settingsDir, "../../epctagcoder")

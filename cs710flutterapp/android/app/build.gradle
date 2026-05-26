@@ -38,6 +38,6 @@ flutter {
 }
 
 dependencies {
-    // Direct dependency on SDK for RFID operations
-    implementation project(':csl-rfid-android-sdk')
+    // CSL RFID SDK from JitPack (https://jitpack.io/#cslrfid/cs710s-android)
+    implementation 'com.github.cslrfid.cs710s-android:csl-rfid-android-sdk:v1.0.0'
 }

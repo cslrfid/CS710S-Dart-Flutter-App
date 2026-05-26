@@ -26,7 +26,7 @@ final inventoryServiceProvider = AutoDisposeProvider<InventoryService>.internal(
 // ignore: unused_element
 typedef InventoryServiceRef = AutoDisposeProviderRef<InventoryService>;
 String _$rfidInventoryStateNotifierHash() =>
-    r'6206b155162d23a2b74cbd7aa44c516919747806';
+    r'ea9d74ee2ff8bc0d2c7d1d95e050068b7fe01060';
 
 /// RFID inventory state provider
 ///
