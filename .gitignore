@@ -209,6 +209,11 @@ GoogleService-Info.plist
 **/fastlane/readme.md
 
 
+##### Claude Code #####
+.claude/
+CLAUDE.md
+
+
 ##### Logs / backups / temporary #####
 *.log
 *.bak

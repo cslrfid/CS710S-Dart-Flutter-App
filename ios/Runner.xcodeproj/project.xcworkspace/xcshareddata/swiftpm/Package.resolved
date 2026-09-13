@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/cslrfid/CSL-CS710S",
       "state" : {
-        "revision" : "b87a4cedcadf3b708f9a3712a2a586ac063d7b09",
-        "version" : "1.13.0"
+        "revision" : "82dbc44e5d68edb96317118117f11b8c2500a27b",
+        "version" : "1.14.0"
       }
     }
   ],
