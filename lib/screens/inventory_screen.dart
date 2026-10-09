@@ -83,6 +83,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   @override
   void dispose() {
+    _triggerSubscription?.cancel();
     _tabController.dispose();
     // Note: Inventory cleanup is handled by providers' onDispose callbacks
     // We don't need to explicitly stop here to avoid "ref after disposal" errors
@@ -173,19 +174,6 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
     }
   }
 
-  /// Disable trigger key monitoring
-  Future<void> _disableTriggerKey() async {
-    try {
-      await _triggerSubscription?.cancel();
-      _triggerSubscription = null;
-
-      final rfidService = ref.read(rfidServiceProvider);
-      await rfidService.disableTrigger();
-    } catch (e) {
-      print('Warning: Could not disable trigger key: $e');
-    }
-  }
-
   void _navigateToLocateTag(String epc) {
     // Navigate to geiger screen with selected EPC
     Navigator.pushNamed(
@@ -207,19 +195,25 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          ...SortBy.values.map((sortBy) {
-            return RadioListTile<SortBy>(
-              title: Text(_getSortByLabel(sortBy)),
-              value: sortBy,
-              groupValue: _sortBy,
-              onChanged: (value) {
-                setState(() {
-                  _sortBy = value!;
-                });
-                Navigator.pop(context);
-              },
-            );
-          }),
+          RadioGroup<SortBy>(
+            groupValue: _sortBy,
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                _sortBy = value;
+              });
+              Navigator.pop(context);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: SortBy.values.map((sortBy) {
+                return RadioListTile<SortBy>(
+                  title: Text(_getSortByLabel(sortBy)),
+                  value: sortBy,
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );

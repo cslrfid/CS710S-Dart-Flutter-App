@@ -5,7 +5,6 @@ import '../providers/geiger_state_provider.dart';
 import '../providers/connection_state_provider.dart';
 import '../providers/scan_state_provider.dart';
 import '../widgets/battery_indicator.dart';
-import '../utils/formatters.dart';
 
 /// Geiger search screen for locating specific tags
 class GeigerScreen extends ConsumerStatefulWidget {

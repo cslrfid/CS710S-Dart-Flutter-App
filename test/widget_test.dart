@@ -1,30 +1,69 @@
-// This is a basic Flutter widget test.
+// Unit tests for pure, hardware-independent logic.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Per CLAUDE.md, the `test/` directory is for unit-testable logic only — RFID
+// flows depend on the CS710S BLE platform channels and must be verified on a
+// connected reader, so they are intentionally not covered here.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cs710flutterapp/main.dart';
+import 'package:cs710sflutterapp/providers/connection_state_provider.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('ConnectionState', () {
+    test('defaults to a disconnected state with no reader or error', () {
+      const state = ConnectionState();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(state.status, ConnectionStatus.disconnected);
+      expect(state.connectedReader, isNull);
+      expect(state.error, isNull);
+      expect(state.isConnected, isFalse);
+      expect(state.isReady, isFalse);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('isConnected is true for both connected and ready states', () {
+      expect(
+        const ConnectionState(status: ConnectionStatus.connected).isConnected,
+        isTrue,
+      );
+      expect(
+        const ConnectionState(status: ConnectionStatus.ready).isConnected,
+        isTrue,
+      );
+      expect(
+        const ConnectionState(status: ConnectionStatus.connecting).isConnected,
+        isFalse,
+      );
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('isReady is true only for the ready state', () {
+      expect(
+        const ConnectionState(status: ConnectionStatus.ready).isReady,
+        isTrue,
+      );
+      expect(
+        const ConnectionState(status: ConnectionStatus.connected).isReady,
+        isFalse,
+      );
+    });
+
+    test('copyWith overrides only the provided fields', () {
+      const state = ConnectionState();
+
+      final updated = state.copyWith(status: ConnectionStatus.initializing);
+
+      expect(updated.status, ConnectionStatus.initializing);
+      expect(updated.connectedReader, isNull);
+    });
+
+    test('clearError preserves status but drops the error', () {
+      const state = ConnectionState(
+        status: ConnectionStatus.connecting,
+      );
+
+      final cleared = state.clearError();
+
+      expect(cleared.status, ConnectionStatus.connecting);
+      expect(cleared.error, isNull);
+    });
   });
 }

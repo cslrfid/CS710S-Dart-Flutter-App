@@ -15,8 +15,6 @@ class ScanScreen extends ConsumerStatefulWidget {
 }
 
 class _ScanScreenState extends ConsumerState<ScanScreen> {
-  bool _isDisposed = false;
-
   @override
   void initState() {
     super.initState();
@@ -122,7 +120,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   @override
   void dispose() {
-    _isDisposed = true;
     // Stop scanning when leaving screen
     // Call stopScan before dispose to avoid using ref after disposal
     try {
