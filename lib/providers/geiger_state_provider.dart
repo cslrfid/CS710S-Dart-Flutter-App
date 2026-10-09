@@ -68,7 +68,7 @@ class GeigerState {
 
 /// Provide GeigerService instance
 @riverpod
-GeigerService geigerService(GeigerServiceRef ref) {
+GeigerService geigerService(Ref ref) {
   final rfidService = ref.watch(rfidServiceProvider);
   final service = GeigerService(rfidService);
   service.initialize();

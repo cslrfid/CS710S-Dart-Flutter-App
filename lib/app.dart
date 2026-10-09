@@ -16,11 +16,21 @@ class CS710FlutterApp extends ConsumerWidget {
       title: 'CS710S Quick Start',
       theme: AppTheme.lightTheme,
       initialRoute: '/',
+      // Riverpod 3.0 pauses providers whose only listeners are on an
+      // off-screen route (e.g. a screen sitting under a dialog). This app's
+      // providers drive live BLE streams and auto-navigation, so wrap each
+      // route in TickerMode(enabled: true) — it overrides the route's own
+      // off-screen TickerMode and keeps that screen's providers active,
+      // matching Riverpod 2.x behavior.
       routes: {
-        '/': (context) => const MainScreen(),
-        '/scan': (context) => const ScanScreen(),
-        '/inventory': (context) => const InventoryScreen(),
-        '/geiger': (context) => const GeigerScreen(),
+        '/': (context) =>
+            const TickerMode(enabled: true, child: MainScreen()),
+        '/scan': (context) =>
+            const TickerMode(enabled: true, child: ScanScreen()),
+        '/inventory': (context) =>
+            const TickerMode(enabled: true, child: InventoryScreen()),
+        '/geiger': (context) =>
+            const TickerMode(enabled: true, child: GeigerScreen()),
       },
       debugShowCheckedModeBanner: false,
     );

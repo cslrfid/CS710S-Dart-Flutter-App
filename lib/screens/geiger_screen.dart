@@ -39,7 +39,7 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
     // Stop search when leaving screen
     // Use ref before calling super.dispose() to avoid "ref after disposal" error
     try {
-      final geigerNotifier = ref.read(geigerStateNotifierProvider.notifier);
+      final geigerNotifier = ref.read(geigerStateProvider.notifier);
       geigerNotifier.stopGeigerSearch();
 
       // Disable trigger monitoring
@@ -62,7 +62,7 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
       return;
     }
 
-    final geigerNotifier = ref.read(geigerStateNotifierProvider.notifier);
+    final geigerNotifier = ref.read(geigerStateProvider.notifier);
 
     // Reset proximity to zero before starting search
     geigerNotifier.resetProximity();
@@ -72,14 +72,14 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   }
 
   Future<void> _stopSearch() async {
-    final geigerNotifier = ref.read(geigerStateNotifierProvider.notifier);
+    final geigerNotifier = ref.read(geigerStateProvider.notifier);
     await geigerNotifier.stopGeigerSearch();
   }
 
   /// Enable trigger key monitoring
   /// Trigger will automatically start/stop Geiger search when pressed/released
   Future<void> _enableTriggerKey() async {
-    final connectionState = ref.read(connectionStateNotifierProvider);
+    final connectionState = ref.read(connectionStateProvider);
     if (!connectionState.isReady) {
       return;
     }
@@ -90,7 +90,7 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
 
       // Listen to trigger events and simulate button press
       _triggerSubscription = rfidService.triggerEvents.listen((event) {
-        final geigerState = ref.read(geigerStateNotifierProvider);
+        final geigerState = ref.read(geigerStateProvider);
 
         if (event.pressed) {
           // Trigger pressed - start search if not already running
@@ -124,8 +124,8 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final connectionState = ref.watch(connectionStateNotifierProvider);
-    final geigerState = ref.watch(geigerStateNotifierProvider);
+    final connectionState = ref.watch(connectionStateProvider);
+    final geigerState = ref.watch(geigerStateProvider);
 
     if (!connectionState.isReady) {
       return Scaffold(

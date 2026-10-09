@@ -9,8 +9,8 @@ class BatteryIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final connectionState = ref.watch(connectionStateNotifierProvider);
-    final batteryState = ref.watch(batteryStateNotifierProvider);
+    final connectionState = ref.watch(connectionStateProvider);
+    final batteryState = ref.watch(batteryStateProvider);
 
     // Only show if reader is connected
     if (!connectionState.isReady) {

@@ -5,13 +5,13 @@ part 'permission_provider.g.dart';
 
 /// Provider for permission service
 @riverpod
-PermissionService permissionService(PermissionServiceRef ref) {
+PermissionService permissionService(Ref ref) {
   return PermissionService();
 }
 
 /// Provider for checking permission status
 @riverpod
-Future<bool> hasPermissions(HasPermissionsRef ref) async {
+Future<bool> hasPermissions(Ref ref) async {
   final service = ref.watch(permissionServiceProvider);
   return await service.checkPermissions();
 }

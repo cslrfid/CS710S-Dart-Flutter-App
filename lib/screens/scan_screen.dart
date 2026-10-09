@@ -28,7 +28,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   /// Listen to connection state and auto-navigate when READY
   void _listenToConnectionState() {
     ref.listenManual(
-      conn_provider.connectionStateNotifierProvider,
+      conn_provider.connectionStateProvider,
       (previous, next) {
         if (!mounted) return;
 
@@ -123,7 +123,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     // Stop scanning when leaving screen
     // Call stopScan before dispose to avoid using ref after disposal
     try {
-      final scanNotifier = ref.read(scanStateNotifierProvider.notifier);
+      final scanNotifier = ref.read(scanStateProvider.notifier);
       scanNotifier.stopScan();
     } catch (e) {
       // Ignore errors if already disposed
@@ -150,17 +150,17 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   }
 
   Future<void> _startScan() async {
-    final scanNotifier = ref.read(scanStateNotifierProvider.notifier);
+    final scanNotifier = ref.read(scanStateProvider.notifier);
     await scanNotifier.startScan();
   }
 
   Future<void> _stopScan() async {
-    final scanNotifier = ref.read(scanStateNotifierProvider.notifier);
+    final scanNotifier = ref.read(scanStateProvider.notifier);
     await scanNotifier.stopScan();
   }
 
   Future<void> _connectToReader(String address) async {
-    final connectionNotifier = ref.read(conn_provider.connectionStateNotifierProvider.notifier);
+    final connectionNotifier = ref.read(conn_provider.connectionStateProvider.notifier);
 
     // Stop scanning first
     await _stopScan();
@@ -181,8 +181,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scanState = ref.watch(scanStateNotifierProvider);
-    final connectionState = ref.watch(conn_provider.connectionStateNotifierProvider);
+    final scanState = ref.watch(scanStateProvider);
+    final connectionState = ref.watch(conn_provider.connectionStateProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -286,7 +286,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   }
 
   Future<void> _disconnectReader() async {
-    final connectionNotifier = ref.read(conn_provider.connectionStateNotifierProvider.notifier);
+    final connectionNotifier = ref.read(conn_provider.connectionStateProvider.notifier);
 
     try {
       await connectionNotifier.disconnect();

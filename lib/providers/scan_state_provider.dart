@@ -39,20 +39,20 @@ class ScanState {
 
 /// Provide RfidChannel instance
 @riverpod
-RfidChannel rfidChannel(RfidChannelRef ref) {
+RfidChannel rfidChannel(Ref ref) {
   return RfidChannel();
 }
 
 /// Provide RfidService instance
 @riverpod
-RfidService rfidService(RfidServiceRef ref) {
+RfidService rfidService(Ref ref) {
   final channel = ref.watch(rfidChannelProvider);
   return RfidService(channel);
 }
 
 /// Provide ScanService instance
 @riverpod
-ScanService scanService(ScanServiceRef ref) {
+ScanService scanService(Ref ref) {
   final rfidService = ref.watch(rfidServiceProvider);
   final service = ScanService(rfidService);
   service.initialize();

@@ -120,7 +120,7 @@ class BatteryState {
 
 /// Provide BatteryService instance
 @riverpod
-BatteryService batteryService(BatteryServiceRef ref) {
+BatteryService batteryService(Ref ref) {
   final rfidService = ref.watch(rfidServiceProvider);
   final service = BatteryService(rfidService);
   service.initialize();

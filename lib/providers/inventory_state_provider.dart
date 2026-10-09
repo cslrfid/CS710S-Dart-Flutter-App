@@ -88,7 +88,7 @@ class BarcodeInventoryState {
 
 /// Provide InventoryService instance
 @riverpod
-InventoryService inventoryService(InventoryServiceRef ref) {
+InventoryService inventoryService(Ref ref) {
   final rfidService = ref.watch(rfidServiceProvider);
   final service = InventoryService(rfidService);
   service.initialize();

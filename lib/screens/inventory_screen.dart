@@ -39,7 +39,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
   /// Apply reader configuration when inventory page loads
   /// Configuration matches cs710aquickstart defaults
   Future<void> _applyReaderConfiguration() async {
-    final connectionState = ref.read(connectionStateNotifierProvider);
+    final connectionState = ref.read(connectionStateProvider);
 
     // Only configure if reader is connected
     if (!connectionState.isReady) {
@@ -91,39 +91,39 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
   }
 
   Future<void> _startRfidInventory() async {
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
     await notifier.startInventory();
   }
 
   Future<void> _stopRfidInventory() async {
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
     await notifier.stopInventory();
   }
 
   void _clearRfidTags() {
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
     notifier.clearTags();
   }
 
   Future<void> _startBarcodeScanning() async {
-    final notifier = ref.read(barcodeInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(barcodeInventoryStateProvider.notifier);
     await notifier.startBarcodeScan();
   }
 
   Future<void> _stopBarcodeScanning() async {
-    final notifier = ref.read(barcodeInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(barcodeInventoryStateProvider.notifier);
     await notifier.stopBarcodeScan();
   }
 
   void _clearBarcodes() {
-    final notifier = ref.read(barcodeInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(barcodeInventoryStateProvider.notifier);
     notifier.clearBarcodes();
   }
 
   /// Enable trigger key monitoring
   /// Trigger will automatically start/stop inventory/barcode when pressed/released
   Future<void> _enableTriggerKey() async {
-    final connectionState = ref.read(connectionStateNotifierProvider);
+    final connectionState = ref.read(connectionStateProvider);
     if (!connectionState.isReady) {
       return;
     }
@@ -139,7 +139,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
         if (isRfidTab) {
           // RFID tab
-          final rfidState = ref.read(rfidInventoryStateNotifierProvider);
+          final rfidState = ref.read(rfidInventoryStateProvider);
 
           if (event.pressed) {
             // Trigger pressed - start inventory if not already running
@@ -154,7 +154,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
           }
         } else {
           // Barcode tab
-          final barcodeState = ref.read(barcodeInventoryStateNotifierProvider);
+          final barcodeState = ref.read(barcodeInventoryStateProvider);
 
           if (event.pressed) {
             // Trigger pressed - start barcode scan if not already running
@@ -234,7 +234,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   @override
   Widget build(BuildContext context) {
-    final connectionState = ref.watch(connectionStateNotifierProvider);
+    final connectionState = ref.watch(connectionStateProvider);
 
     if (!connectionState.isReady) {
       return Scaffold(
@@ -275,8 +275,8 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   /// Build RFID inventory tab
   Widget _buildRfidTab() {
-    final rfidState = ref.watch(rfidInventoryStateNotifierProvider);
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final rfidState = ref.watch(rfidInventoryStateProvider);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
 
     return Column(
       children: [
@@ -388,7 +388,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   /// Build barcode scanning tab
   Widget _buildBarcodeTab() {
-    final barcodeState = ref.watch(barcodeInventoryStateNotifierProvider);
+    final barcodeState = ref.watch(barcodeInventoryStateProvider);
 
     return Column(
       children: [
