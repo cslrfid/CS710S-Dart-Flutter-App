@@ -25,6 +25,32 @@ class RfidChannel {
   static const _configEvents =
       EventChannel(AppConstants.configEventsChannel);
 
+  // Each broadcast stream is created ONCE and shared by all listeners.
+  // Calling receiveBroadcastStream() on every getter access (the previous
+  // behavior) handed each subscriber its own stream on the same channel, so
+  // the native side re-ran onListen for each and tore down its single
+  // EventSink as soon as any one subscriber cancelled — dropping events for
+  // the others (e.g. the trigger going dead on the inventory screen after
+  // returning from the geiger screen). Sharing one broadcast stream means the
+  // native onListen fires on the first listener and onCancel only when the
+  // last listener leaves.
+  late final Stream<dynamic> _scanEventsStream =
+      _scanEvents.receiveBroadcastStream();
+  late final Stream<dynamic> _connectionEventsStream =
+      _connectionEvents.receiveBroadcastStream();
+  late final Stream<dynamic> _inventoryEventsStream =
+      _inventoryEvents.receiveBroadcastStream();
+  late final Stream<dynamic> _geigerEventsStream =
+      _geigerEvents.receiveBroadcastStream();
+  late final Stream<dynamic> _barcodeEventsStream =
+      _barcodeEvents.receiveBroadcastStream();
+  late final Stream<dynamic> _batteryEventsStream =
+      _batteryEvents.receiveBroadcastStream();
+  late final Stream<dynamic> _triggerEventsStream =
+      _triggerEvents.receiveBroadcastStream();
+  late final Stream<dynamic> _configEventsStream =
+      _configEvents.receiveBroadcastStream();
+
   // ========== SCANNING METHODS ==========
 
   /// Start scanning for RFID readers
@@ -219,46 +245,34 @@ class RfidChannel {
   }
 
   /// Stream of scan events (reader discovered, scan error)
-  Stream<Map<String, dynamic>> get scanEvents {
-    print('📱 Flutter: Subscribing to scan events stream');
-    return _scanEvents.receiveBroadcastStream().map((event) {
-      print('📱 Flutter: Raw event received from native: $event');
-      return _convertMap(event);
-    });
-  }
+  Stream<Map<String, dynamic>> get scanEvents =>
+      _scanEventsStream.map(_convertMap);
 
   /// Stream of connection events (connecting, connected, ready, disconnected, failed)
   Stream<Map<String, dynamic>> get connectionEvents =>
-      _connectionEvents.receiveBroadcastStream().map(_convertMap);
+      _connectionEventsStream.map(_convertMap);
 
   /// Stream of inventory events (tag read, round update, stopped, error)
-  Stream<Map<String, dynamic>> get inventoryEvents {
-    print('📱 Flutter: Subscribing to inventory events stream');
-    return _inventoryEvents.receiveBroadcastStream().map((event) {
-      print('📱 Flutter: Raw inventory event received from native: $event');
-      final converted = _convertMap(event);
-      print('📱 Flutter: Converted inventory event: $converted');
-      return converted;
-    });
-  }
+  Stream<Map<String, dynamic>> get inventoryEvents =>
+      _inventoryEventsStream.map(_convertMap);
 
   /// Stream of Geiger events (proximity update, started, stopped, error)
   Stream<Map<String, dynamic>> get geigerEvents =>
-      _geigerEvents.receiveBroadcastStream().map(_convertMap);
+      _geigerEventsStream.map(_convertMap);
 
   /// Stream of barcode events (barcode scanned, stats update, error)
   Stream<Map<String, dynamic>> get barcodeEvents =>
-      _barcodeEvents.receiveBroadcastStream().map(_convertMap);
+      _barcodeEventsStream.map(_convertMap);
 
   /// Stream of battery events (battery update)
   Stream<Map<String, dynamic>> get batteryEvents =>
-      _batteryEvents.receiveBroadcastStream().map(_convertMap);
+      _batteryEventsStream.map(_convertMap);
 
   /// Stream of trigger events (trigger state changed)
   Stream<Map<String, dynamic>> get triggerEvents =>
-      _triggerEvents.receiveBroadcastStream().map(_convertMap);
+      _triggerEventsStream.map(_convertMap);
 
   /// Stream of configuration events (configured, failed)
   Stream<Map<String, dynamic>> get configEvents =>
-      _configEvents.receiveBroadcastStream().map(_convertMap);
+      _configEventsStream.map(_convertMap);
 }

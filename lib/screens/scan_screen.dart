@@ -15,10 +15,6 @@ class ScanScreen extends ConsumerStatefulWidget {
 }
 
 class _ScanScreenState extends ConsumerState<ScanScreen> {
-  // Cached in build() so dispose() never touches `ref` — Riverpod 3.0 makes
-  // using `ref` after a widget is unmounted an error.
-  ScanStateNotifier? _scanNotifier;
-
   @override
   void initState() {
     super.initState();
@@ -122,19 +118,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    // Stop scanning when leaving the screen, using the notifier cached in
-    // build() rather than `ref` (unsafe after unmount in Riverpod 3.0).
-    try {
-      _scanNotifier?.stopScan();
-    } catch (e) {
-      // Ignore errors if already disposed
-      print('Warning: Could not stop scan on dispose: $e');
-    }
-    super.dispose();
-  }
-
   Future<void> _checkPermissionsAndScan() async {
     final permissionService = ref.read(permissionServiceProvider);
     final hasPermissions = await permissionService.ensurePermissions();
@@ -186,9 +169,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   Widget build(BuildContext context) {
     final scanState = ref.watch(scanStateProvider);
     final connectionState = ref.watch(conn_provider.connectionStateProvider);
-
-    // Cache the notifier for safe use in dispose().
-    _scanNotifier = ref.read(scanStateProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(

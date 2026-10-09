@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/geiger_state_provider.dart';
 import '../providers/connection_state_provider.dart';
 import '../providers/scan_state_provider.dart';
-import '../services/rfid_service.dart';
 import '../widgets/battery_indicator.dart';
 
 /// Geiger search screen for locating specific tags
@@ -18,11 +17,6 @@ class GeigerScreen extends ConsumerStatefulWidget {
 class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   final TextEditingController _epcController = TextEditingController();
   StreamSubscription? _triggerSubscription;
-
-  // Cached in build() so dispose() never touches `ref` — Riverpod 3.0 makes
-  // using `ref` after a widget is unmounted an error.
-  GeigerStateNotifier? _geigerNotifier;
-  RfidService? _rfidService;
 
   @override
   void initState() {
@@ -42,16 +36,12 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   @override
   void dispose() {
     _epcController.dispose();
-    // Stop search and trigger monitoring when leaving the screen, using the
-    // references cached in build() rather than `ref` (unsafe after unmount in
-    // Riverpod 3.0). These calls are fire-and-forget during teardown.
+    // Cancel only our own trigger listener. Do NOT disable the reader's
+    // hardware trigger here: it is a shared reader feature and the inventory
+    // screen underneath (not disposed while Geiger is pushed on top) still
+    // relies on it. Stopping the Geiger search is owned by
+    // geigerStateProvider's onDispose.
     _triggerSubscription?.cancel();
-    try {
-      _geigerNotifier?.stopGeigerSearch();
-      _rfidService?.disableTrigger();
-    } catch (e) {
-      print('Warning: Could not stop geiger search on dispose: $e');
-    }
     super.dispose();
   }
 
@@ -95,6 +85,10 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
 
       // Listen to trigger events and simulate button press
       _triggerSubscription = rfidService.triggerEvents.listen((event) {
+        // The trigger event stream is shared across screens. Ignore events
+        // while this screen is not the active route.
+        if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+
         final geigerState = ref.read(geigerStateProvider);
 
         if (event.pressed) {
@@ -118,10 +112,6 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   Widget build(BuildContext context) {
     final connectionState = ref.watch(connectionStateProvider);
     final geigerState = ref.watch(geigerStateProvider);
-
-    // Cache provider references for safe use in dispose().
-    _geigerNotifier = ref.read(geigerStateProvider.notifier);
-    _rfidService = ref.read(rfidServiceProvider);
 
     if (!connectionState.isReady) {
       return Scaffold(

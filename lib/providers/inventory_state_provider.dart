@@ -110,26 +110,30 @@ class RfidInventoryStateNotifier extends _$RfidInventoryStateNotifier {
 
     print('📱 RfidInventoryStateNotifier: build() called, setting up stream listeners');
 
-    // Listen to tags stream
-    service.rfidTags.listen((tags) {
+    // Keep the subscriptions so they can be cancelled on dispose. Without
+    // this, a stream event arriving after the provider is disposed (the
+    // screen unmounting) would call `state = ...` on a dead provider, which
+    // throws in Riverpod 3.0.
+    final tagsSub = service.rfidTags.listen((tags) {
       print('📱 RfidInventoryStateNotifier: Tags stream emitted ${tags.length} tags');
       state = state.copyWith(tags: tags);
       print('📱 RfidInventoryStateNotifier: State updated with ${state.tags.length} tags');
     });
-
-    // Listen to stats stream
-    service.rfidStats.listen((stats) {
+    final statsSub = service.rfidStats.listen((stats) {
       state = state.copyWith(stats: stats);
     });
-
-    // Listen to inventorying state stream
-    service.isInventorying.listen((isInventorying) {
+    final inventoryingSub = service.isInventorying.listen((isInventorying) {
       state = state.copyWith(isInventorying: isInventorying);
     });
-
-    // Listen to errors stream
-    service.rfidErrors.listen((error) {
+    final errorsSub = service.rfidErrors.listen((error) {
       state = state.copyWith(error: error);
+    });
+
+    ref.onDispose(() {
+      tagsSub.cancel();
+      statsSub.cancel();
+      inventoryingSub.cancel();
+      errorsSub.cancel();
     });
 
     return const RfidInventoryState();
@@ -226,24 +230,26 @@ class BarcodeInventoryStateNotifier extends _$BarcodeInventoryStateNotifier {
   BarcodeInventoryState build() {
     final service = ref.watch(inventoryServiceProvider);
 
-    // Listen to barcodes stream
-    service.barcodes.listen((barcodes) {
+    // Keep the subscriptions so they can be cancelled on dispose (see the
+    // RFID notifier above) — avoids `state = ...` on a disposed provider.
+    final barcodesSub = service.barcodes.listen((barcodes) {
       state = state.copyWith(barcodes: barcodes);
     });
-
-    // Listen to stats stream
-    service.barcodeStats.listen((stats) {
+    final statsSub = service.barcodeStats.listen((stats) {
       state = state.copyWith(stats: stats);
     });
-
-    // Listen to scanning state stream
-    service.isBarcodeScanning.listen((isScanning) {
+    final scanningSub = service.isBarcodeScanning.listen((isScanning) {
       state = state.copyWith(isScanning: isScanning);
     });
-
-    // Listen to errors stream
-    service.barcodeErrors.listen((error) {
+    final errorsSub = service.barcodeErrors.listen((error) {
       state = state.copyWith(error: error);
+    });
+
+    ref.onDispose(() {
+      barcodesSub.cancel();
+      statsSub.cancel();
+      scanningSub.cancel();
+      errorsSub.cancel();
     });
 
     return const BarcodeInventoryState();

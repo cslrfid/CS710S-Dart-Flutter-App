@@ -72,19 +72,28 @@ class ScanStateNotifier extends _$ScanStateNotifier {
   ScanState build() {
     final service = ref.watch(scanServiceProvider);
 
-    // Listen to readers stream
-    service.readers.listen((readers) {
+    // Keep the subscriptions so they can be cancelled on dispose. Without
+    // this, a stream event arriving after the provider is disposed (the
+    // screen unmounting) would call `state = ...` on a dead provider, which
+    // throws in Riverpod 3.0.
+    final readersSub = service.readers.listen((readers) {
       state = state.copyWith(readers: readers);
     });
-
-    // Listen to scanning state stream
-    service.isScanning.listen((isScanning) {
+    final scanningSub = service.isScanning.listen((isScanning) {
       state = state.copyWith(isScanning: isScanning);
     });
-
-    // Listen to errors stream
-    service.errors.listen((error) {
+    final errorsSub = service.errors.listen((error) {
       state = state.copyWith(error: error);
+    });
+
+    ref.onDispose(() {
+      // Cancel listeners first so stopping the scan can't mutate state.
+      readersSub.cancel();
+      scanningSub.cancel();
+      errorsSub.cancel();
+      // Stop scanning when the screen is left. Service-level call only —
+      // never touch `state`/`ref` during disposal.
+      service.stopScan().catchError((_) {});
     });
 
     return const ScanState();

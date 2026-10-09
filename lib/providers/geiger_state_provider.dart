@@ -88,24 +88,32 @@ class GeigerStateNotifier extends _$GeigerStateNotifier {
   GeigerState build() {
     final service = ref.watch(geigerServiceProvider);
 
-    // Listen to stats stream
-    service.stats.listen((stats) {
+    // Keep the subscriptions so they can be cancelled on dispose. Without
+    // this, a stream event arriving after the provider is disposed (the
+    // screen unmounting) would call `state = ...` on a dead provider, which
+    // throws in Riverpod 3.0.
+    final statsSub = service.stats.listen((stats) {
       state = state.copyWith(stats: stats);
     });
-
-    // Listen to searching state stream
-    service.isSearching.listen((isSearching) {
+    final searchingSub = service.isSearching.listen((isSearching) {
       state = state.copyWith(isSearching: isSearching);
     });
-
-    // Listen to target EPC stream
-    service.targetEpc.listen((targetEpc) {
+    final targetEpcSub = service.targetEpc.listen((targetEpc) {
       state = state.copyWith(targetEpc: targetEpc);
     });
-
-    // Listen to errors stream
-    service.errors.listen((error) {
+    final errorsSub = service.errors.listen((error) {
       state = state.copyWith(error: error);
+    });
+
+    ref.onDispose(() {
+      // Cancel listeners first so stopping the search can't mutate state.
+      statsSub.cancel();
+      searchingSub.cancel();
+      targetEpcSub.cancel();
+      errorsSub.cancel();
+      // Stop the hardware search when the screen is left. Service-level call
+      // only — never touch `state`/`ref` during disposal.
+      service.stopGeigerSearch().catchError((_) {});
     });
 
     return const GeigerState();

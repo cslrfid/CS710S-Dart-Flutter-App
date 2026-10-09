@@ -134,6 +134,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
       // Listen to trigger events and simulate button press
       _triggerSubscription = rfidService.triggerEvents.listen((event) {
+        // The trigger event stream is shared across screens. Ignore events
+        // while this screen is not the active route (e.g. the geiger screen
+        // is pushed on top of it).
+        if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+
         // Check which tab is active
         final isRfidTab = _tabController.index == 0;
 
