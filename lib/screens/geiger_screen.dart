@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/geiger_state_provider.dart';
 import '../providers/connection_state_provider.dart';
 import '../providers/scan_state_provider.dart';
+import '../services/rfid_service.dart';
 import '../widgets/battery_indicator.dart';
 
 /// Geiger search screen for locating specific tags
@@ -17,6 +18,11 @@ class GeigerScreen extends ConsumerStatefulWidget {
 class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   final TextEditingController _epcController = TextEditingController();
   StreamSubscription? _triggerSubscription;
+
+  // Cached in build() so dispose() never touches `ref` — Riverpod 3.0 makes
+  // using `ref` after a widget is unmounted an error.
+  GeigerStateNotifier? _geigerNotifier;
+  RfidService? _rfidService;
 
   @override
   void initState() {
@@ -36,14 +42,13 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   @override
   void dispose() {
     _epcController.dispose();
-    // Stop search when leaving screen
-    // Use ref before calling super.dispose() to avoid "ref after disposal" error
+    // Stop search and trigger monitoring when leaving the screen, using the
+    // references cached in build() rather than `ref` (unsafe after unmount in
+    // Riverpod 3.0). These calls are fire-and-forget during teardown.
+    _triggerSubscription?.cancel();
     try {
-      final geigerNotifier = ref.read(geigerStateProvider.notifier);
-      geigerNotifier.stopGeigerSearch();
-
-      // Disable trigger monitoring
-      _disableTriggerKey();
+      _geigerNotifier?.stopGeigerSearch();
+      _rfidService?.disableTrigger();
     } catch (e) {
       print('Warning: Could not stop geiger search on dispose: $e');
     }
@@ -109,23 +114,14 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
     }
   }
 
-  /// Disable trigger key monitoring
-  Future<void> _disableTriggerKey() async {
-    try {
-      await _triggerSubscription?.cancel();
-      _triggerSubscription = null;
-
-      final rfidService = ref.read(rfidServiceProvider);
-      await rfidService.disableTrigger();
-    } catch (e) {
-      print('Warning: Could not disable trigger key: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final connectionState = ref.watch(connectionStateProvider);
     final geigerState = ref.watch(geigerStateProvider);
+
+    // Cache provider references for safe use in dispose().
+    _geigerNotifier = ref.read(geigerStateProvider.notifier);
+    _rfidService = ref.read(rfidServiceProvider);
 
     if (!connectionState.isReady) {
       return Scaffold(
