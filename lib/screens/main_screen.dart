@@ -10,7 +10,7 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final connectionState = ref.watch(conn_provider.connectionStateNotifierProvider);
+    final connectionState = ref.watch(conn_provider.connectionStateProvider);
 
     return Scaffold(
       appBar: AppBar(

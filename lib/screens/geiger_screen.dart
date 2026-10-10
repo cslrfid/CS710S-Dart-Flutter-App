@@ -5,7 +5,6 @@ import '../providers/geiger_state_provider.dart';
 import '../providers/connection_state_provider.dart';
 import '../providers/scan_state_provider.dart';
 import '../widgets/battery_indicator.dart';
-import '../utils/formatters.dart';
 
 /// Geiger search screen for locating specific tags
 class GeigerScreen extends ConsumerStatefulWidget {
@@ -37,17 +36,12 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   @override
   void dispose() {
     _epcController.dispose();
-    // Stop search when leaving screen
-    // Use ref before calling super.dispose() to avoid "ref after disposal" error
-    try {
-      final geigerNotifier = ref.read(geigerStateNotifierProvider.notifier);
-      geigerNotifier.stopGeigerSearch();
-
-      // Disable trigger monitoring
-      _disableTriggerKey();
-    } catch (e) {
-      print('Warning: Could not stop geiger search on dispose: $e');
-    }
+    // Cancel only our own trigger listener. Do NOT disable the reader's
+    // hardware trigger here: it is a shared reader feature and the inventory
+    // screen underneath (not disposed while Geiger is pushed on top) still
+    // relies on it. Stopping the Geiger search is owned by
+    // geigerStateProvider's onDispose.
+    _triggerSubscription?.cancel();
     super.dispose();
   }
 
@@ -63,7 +57,7 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
       return;
     }
 
-    final geigerNotifier = ref.read(geigerStateNotifierProvider.notifier);
+    final geigerNotifier = ref.read(geigerStateProvider.notifier);
 
     // Reset proximity to zero before starting search
     geigerNotifier.resetProximity();
@@ -73,14 +67,14 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
   }
 
   Future<void> _stopSearch() async {
-    final geigerNotifier = ref.read(geigerStateNotifierProvider.notifier);
+    final geigerNotifier = ref.read(geigerStateProvider.notifier);
     await geigerNotifier.stopGeigerSearch();
   }
 
   /// Enable trigger key monitoring
   /// Trigger will automatically start/stop Geiger search when pressed/released
   Future<void> _enableTriggerKey() async {
-    final connectionState = ref.read(connectionStateNotifierProvider);
+    final connectionState = ref.read(connectionStateProvider);
     if (!connectionState.isReady) {
       return;
     }
@@ -91,7 +85,11 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
 
       // Listen to trigger events and simulate button press
       _triggerSubscription = rfidService.triggerEvents.listen((event) {
-        final geigerState = ref.read(geigerStateNotifierProvider);
+        // The trigger event stream is shared across screens. Ignore events
+        // while this screen is not the active route.
+        if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+
+        final geigerState = ref.read(geigerStateProvider);
 
         if (event.pressed) {
           // Trigger pressed - start search if not already running
@@ -110,23 +108,10 @@ class _GeigerScreenState extends ConsumerState<GeigerScreen> {
     }
   }
 
-  /// Disable trigger key monitoring
-  Future<void> _disableTriggerKey() async {
-    try {
-      await _triggerSubscription?.cancel();
-      _triggerSubscription = null;
-
-      final rfidService = ref.read(rfidServiceProvider);
-      await rfidService.disableTrigger();
-    } catch (e) {
-      print('Warning: Could not disable trigger key: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final connectionState = ref.watch(connectionStateNotifierProvider);
-    final geigerState = ref.watch(geigerStateNotifierProvider);
+    final connectionState = ref.watch(connectionStateProvider);
+    final geigerState = ref.watch(geigerStateProvider);
 
     if (!connectionState.isReady) {
       return Scaffold(

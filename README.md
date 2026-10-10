@@ -36,7 +36,7 @@ The app uses a strict five-layer architecture. Each layer only depends on the on
 └────────────────────────────────────────────────┘
                    ↓
 ┌────────────────────────────────────────────────┐
-│  Native CSL SDK                                │  com.csl.rfidsdk  /  iOS framework
+│  Native CSL SDK                                │  com.csl.rfidsdk (JitPack)  /  CSL-CS710S (SPM)
 └────────────────────────────────────────────────┘
 ```
 
@@ -110,8 +110,8 @@ The app uses a strict five-layer architecture. Each layer only depends on the on
 
 | Platform | SDK | How it's pulled in |
 |---|---|---|
-| Android | `com.csl.rfidsdk` (from [`cslrfid/cs710s-android`](https://jitpack.io/#cslrfid/cs710s-android)) | Gradle dependency: `implementation 'com.github.cslrfid.cs710s-android:csl-rfid-android-sdk:v1.0.0'`. Transitively brings in `cslibrary4a` (BLE/protocol layer) and `epctagcoder` (EPC Gen2 helper). |
-| iOS | [`CSL-CS710S`](https://github.com/cslrfid/CSL-CS710S) Swift package | Added as a Swift Package Manager dependency in the Xcode project; the Swift bridge under `ios/Runner/` consumes the package's API. |
+| Android | `com.csl.rfidsdk` (from [`cslrfid/cs710s-android`](https://jitpack.io/#cslrfid/cs710s-android)) | Gradle dependency: `implementation 'com.github.cslrfid.cs710s-android:csl-rfid-android-sdk:v1.1.2'`. Transitively brings in `cslibrary4a` (BLE/protocol layer) and `epctagcoder` (EPC Gen2 helper). |
+| iOS | [`CSL-CS710S`](https://github.com/cslrfid/CSL-CS710S) 1.14.0 Swift package | Added as a Swift Package Manager dependency in the Xcode project (`upToNextMajorVersion`); the Swift bridge under `ios/Runner/` consumes the package's API. |
 
 The `com.csl.rfidsdk` package layout that the Android bridge code targets:
 
@@ -179,15 +179,15 @@ A separate `com.csl.rfid/permissions` method channel handles runtime permission 
 ## Dependencies
 
 ### Production
-- **flutter_riverpod** (^2.4.0) — State management with code generation
-- **riverpod_annotation** (^2.3.0) — Annotations for Riverpod
+- **flutter_riverpod** (^3.0.0) — State management with code generation
+- **riverpod_annotation** (^3.0.0) — Annotations for Riverpod
 - **material_design_icons_flutter** (^7.0.0) — Icon library
 - **intl** (^0.18.0) — Internationalization and formatting
 - **collection** (^1.18.0) — Collection utilities
 
 ### Development
 - **build_runner** (^2.4.0) — Code generation
-- **riverpod_generator** (^2.3.0) — Riverpod code generation
+- **riverpod_generator** (^3.0.0) — Riverpod code generation
 - **flutter_lints** (^3.0.0) — Linting rules
 
 ## Setup

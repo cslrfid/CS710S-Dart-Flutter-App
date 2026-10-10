@@ -39,7 +39,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
   /// Apply reader configuration when inventory page loads
   /// Configuration matches cs710aquickstart defaults
   Future<void> _applyReaderConfiguration() async {
-    final connectionState = ref.read(connectionStateNotifierProvider);
+    final connectionState = ref.read(connectionStateProvider);
 
     // Only configure if reader is connected
     if (!connectionState.isReady) {
@@ -83,6 +83,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   @override
   void dispose() {
+    _triggerSubscription?.cancel();
     _tabController.dispose();
     // Note: Inventory cleanup is handled by providers' onDispose callbacks
     // We don't need to explicitly stop here to avoid "ref after disposal" errors
@@ -90,39 +91,39 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
   }
 
   Future<void> _startRfidInventory() async {
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
     await notifier.startInventory();
   }
 
   Future<void> _stopRfidInventory() async {
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
     await notifier.stopInventory();
   }
 
   void _clearRfidTags() {
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
     notifier.clearTags();
   }
 
   Future<void> _startBarcodeScanning() async {
-    final notifier = ref.read(barcodeInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(barcodeInventoryStateProvider.notifier);
     await notifier.startBarcodeScan();
   }
 
   Future<void> _stopBarcodeScanning() async {
-    final notifier = ref.read(barcodeInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(barcodeInventoryStateProvider.notifier);
     await notifier.stopBarcodeScan();
   }
 
   void _clearBarcodes() {
-    final notifier = ref.read(barcodeInventoryStateNotifierProvider.notifier);
+    final notifier = ref.read(barcodeInventoryStateProvider.notifier);
     notifier.clearBarcodes();
   }
 
   /// Enable trigger key monitoring
   /// Trigger will automatically start/stop inventory/barcode when pressed/released
   Future<void> _enableTriggerKey() async {
-    final connectionState = ref.read(connectionStateNotifierProvider);
+    final connectionState = ref.read(connectionStateProvider);
     if (!connectionState.isReady) {
       return;
     }
@@ -133,12 +134,17 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
       // Listen to trigger events and simulate button press
       _triggerSubscription = rfidService.triggerEvents.listen((event) {
+        // The trigger event stream is shared across screens. Ignore events
+        // while this screen is not the active route (e.g. the geiger screen
+        // is pushed on top of it).
+        if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+
         // Check which tab is active
         final isRfidTab = _tabController.index == 0;
 
         if (isRfidTab) {
           // RFID tab
-          final rfidState = ref.read(rfidInventoryStateNotifierProvider);
+          final rfidState = ref.read(rfidInventoryStateProvider);
 
           if (event.pressed) {
             // Trigger pressed - start inventory if not already running
@@ -153,7 +159,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
           }
         } else {
           // Barcode tab
-          final barcodeState = ref.read(barcodeInventoryStateNotifierProvider);
+          final barcodeState = ref.read(barcodeInventoryStateProvider);
 
           if (event.pressed) {
             // Trigger pressed - start barcode scan if not already running
@@ -170,19 +176,6 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
       });
     } catch (e) {
       print('Warning: Could not enable trigger key: $e');
-    }
-  }
-
-  /// Disable trigger key monitoring
-  Future<void> _disableTriggerKey() async {
-    try {
-      await _triggerSubscription?.cancel();
-      _triggerSubscription = null;
-
-      final rfidService = ref.read(rfidServiceProvider);
-      await rfidService.disableTrigger();
-    } catch (e) {
-      print('Warning: Could not disable trigger key: $e');
     }
   }
 
@@ -207,19 +200,25 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          ...SortBy.values.map((sortBy) {
-            return RadioListTile<SortBy>(
-              title: Text(_getSortByLabel(sortBy)),
-              value: sortBy,
-              groupValue: _sortBy,
-              onChanged: (value) {
-                setState(() {
-                  _sortBy = value!;
-                });
-                Navigator.pop(context);
-              },
-            );
-          }),
+          RadioGroup<SortBy>(
+            groupValue: _sortBy,
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                _sortBy = value;
+              });
+              Navigator.pop(context);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: SortBy.values.map((sortBy) {
+                return RadioListTile<SortBy>(
+                  title: Text(_getSortByLabel(sortBy)),
+                  value: sortBy,
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );
@@ -240,7 +239,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   @override
   Widget build(BuildContext context) {
-    final connectionState = ref.watch(connectionStateNotifierProvider);
+    final connectionState = ref.watch(connectionStateProvider);
 
     if (!connectionState.isReady) {
       return Scaffold(
@@ -281,8 +280,8 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   /// Build RFID inventory tab
   Widget _buildRfidTab() {
-    final rfidState = ref.watch(rfidInventoryStateNotifierProvider);
-    final notifier = ref.read(rfidInventoryStateNotifierProvider.notifier);
+    final rfidState = ref.watch(rfidInventoryStateProvider);
+    final notifier = ref.read(rfidInventoryStateProvider.notifier);
 
     return Column(
       children: [
@@ -394,7 +393,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen>
 
   /// Build barcode scanning tab
   Widget _buildBarcodeTab() {
-    final barcodeState = ref.watch(barcodeInventoryStateNotifierProvider);
+    final barcodeState = ref.watch(barcodeInventoryStateProvider);
 
     return Column(
       children: [

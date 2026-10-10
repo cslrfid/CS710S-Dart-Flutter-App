@@ -6,44 +6,90 @@ part of 'permission_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$permissionServiceHash() => r'19b92322798ea7fd375e96ef01c7cc2626892ad5';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Provider for permission service
+
+@ProviderFor(permissionService)
+const permissionServiceProvider = PermissionServiceProvider._();
 
 /// Provider for permission service
-///
-/// Copied from [permissionService].
-@ProviderFor(permissionService)
-final permissionServiceProvider =
-    AutoDisposeProvider<PermissionService>.internal(
-  permissionService,
-  name: r'permissionServiceProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$permissionServiceHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef PermissionServiceRef = AutoDisposeProviderRef<PermissionService>;
-String _$hasPermissionsHash() => r'0b8761530b399f2566f03cb7d3c1c9267a178511';
+final class PermissionServiceProvider extends $FunctionalProvider<
+    PermissionService,
+    PermissionService,
+    PermissionService> with $Provider<PermissionService> {
+  /// Provider for permission service
+  const PermissionServiceProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'permissionServiceProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$permissionServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<PermissionService> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PermissionService create(Ref ref) {
+    return permissionService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PermissionService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PermissionService>(value),
+    );
+  }
+}
+
+String _$permissionServiceHash() => r'8944118369fdc2dd355a221dd4f8a487b7f3372c';
 
 /// Provider for checking permission status
-///
-/// Copied from [hasPermissions].
-@ProviderFor(hasPermissions)
-final hasPermissionsProvider = AutoDisposeFutureProvider<bool>.internal(
-  hasPermissions,
-  name: r'hasPermissionsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$hasPermissionsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef HasPermissionsRef = AutoDisposeFutureProviderRef<bool>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+@ProviderFor(hasPermissions)
+const hasPermissionsProvider = HasPermissionsProvider._();
+
+/// Provider for checking permission status
+
+final class HasPermissionsProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  /// Provider for checking permission status
+  const HasPermissionsProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'hasPermissionsProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$hasPermissionsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return hasPermissions(ref);
+  }
+}
+
+String _$hasPermissionsHash() => r'68c2af4bb5e1ab627b60a0d14ed3640f50ec9ff4';

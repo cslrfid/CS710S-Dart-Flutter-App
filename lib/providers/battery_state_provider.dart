@@ -120,7 +120,7 @@ class BatteryState {
 
 /// Provide BatteryService instance
 @riverpod
-BatteryService batteryService(BatteryServiceRef ref) {
+BatteryService batteryService(Ref ref) {
   final rfidService = ref.watch(rfidServiceProvider);
   final service = BatteryService(rfidService);
   service.initialize();
@@ -140,19 +140,23 @@ class BatteryStateNotifier extends _$BatteryStateNotifier {
   BatteryState build() {
     final service = ref.watch(batteryServiceProvider);
 
-    // Listen to battery updates stream
-    service.battery.listen((battery) {
+    // Keep the subscriptions so they can be cancelled on dispose. Without
+    // this, a stream event arriving after the provider is disposed would call
+    // `state = ...` on a dead provider, which throws in Riverpod 3.0.
+    final batterySub = service.battery.listen((battery) {
       state = state.copyWith(battery: battery);
     });
-
-    // Listen to monitoring state stream
-    service.isMonitoring.listen((isMonitoring) {
+    final monitoringSub = service.isMonitoring.listen((isMonitoring) {
       state = state.copyWith(isMonitoring: isMonitoring);
     });
-
-    // Listen to errors stream
-    service.errors.listen((error) {
+    final errorsSub = service.errors.listen((error) {
       state = state.copyWith(error: error);
+    });
+
+    ref.onDispose(() {
+      batterySub.cancel();
+      monitoringSub.cancel();
+      errorsSub.cancel();
     });
 
     return const BatteryState();

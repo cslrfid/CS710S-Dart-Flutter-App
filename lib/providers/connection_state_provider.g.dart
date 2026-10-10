@@ -6,24 +6,61 @@ part of 'connection_state_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Connection state provider
+
+@ProviderFor(ConnectionStateNotifier)
+const connectionStateProvider = ConnectionStateNotifierProvider._();
+
+/// Connection state provider
+final class ConnectionStateNotifierProvider
+    extends $NotifierProvider<ConnectionStateNotifier, ConnectionState> {
+  /// Connection state provider
+  const ConnectionStateNotifierProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'connectionStateProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$connectionStateNotifierHash();
+
+  @$internal
+  @override
+  ConnectionStateNotifier create() => ConnectionStateNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ConnectionState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ConnectionState>(value),
+    );
+  }
+}
+
 String _$connectionStateNotifierHash() =>
     r'1abeb090d57124a035853ae743600f77c5447d22';
 
 /// Connection state provider
-///
-/// Copied from [ConnectionStateNotifier].
-@ProviderFor(ConnectionStateNotifier)
-final connectionStateNotifierProvider = AutoDisposeNotifierProvider<
-    ConnectionStateNotifier, ConnectionState>.internal(
-  ConnectionStateNotifier.new,
-  name: r'connectionStateNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$connectionStateNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-typedef _$ConnectionStateNotifier = AutoDisposeNotifier<ConnectionState>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+abstract class _$ConnectionStateNotifier extends $Notifier<ConnectionState> {
+  ConnectionState build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<ConnectionState, ConnectionState>;
+    final element = ref.element as $ClassProviderElement<
+        AnyNotifier<ConnectionState, ConnectionState>,
+        ConnectionState,
+        Object?,
+        Object?>;
+    element.handleValue(ref, created);
+  }
+}
